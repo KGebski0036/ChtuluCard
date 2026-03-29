@@ -2,19 +2,24 @@ package com.example.chtulucard.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,11 +30,11 @@ import androidx.compose.ui.unit.sp
 fun CharacterScreen(
     sessionName: String,
     viewModel: CharacterViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onCreateCharacterClick: () -> Unit,
+    onCharacterClick: (Int) -> Unit
 ) {
     val characters by viewModel.characters.collectAsState(initial = emptyList())
-    var showDialog by remember { mutableStateOf(false) }
-    var newCharacterName by remember { mutableStateOf("") }
 
     val lightPurple = Color(0xFFE8DDF5)
     val darkPurple = Color(0xFF5A418A)
@@ -46,7 +51,7 @@ fun CharacterScreen(
             modifier = Modifier.padding(start = 8.dp)
         ) {
             Icon(
-                imageVector = Icons.Filled.ArrowBack,
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Go Back",
                 tint = Color.Black,
                 modifier = Modifier.size(32.dp)
@@ -87,7 +92,8 @@ fun CharacterScreen(
                         text = character.name,
                         iconBgColor = lightPurple,
                         iconColor = darkPurple,
-                        onClick = { /* TODO: Otwarcie karty postaci */ }
+                        avatarResId = CharacterAvatarCatalog.drawableResIdForKey(character.avatarKey),
+                        onClick = { onCharacterClick(character.id) }
                     )
                 }
 
@@ -96,40 +102,11 @@ fun CharacterScreen(
                         text = "Add character",
                         iconBgColor = lightPurple,
                         iconColor = darkPurple,
-                        onClick = { showDialog = true }
+                        onClick = onCreateCharacterClick
                     )
                 }
             }
         }
-    }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("New Character") },
-            text = {
-                OutlinedTextField(
-                    value = newCharacterName,
-                    onValueChange = { newCharacterName = it },
-                    label = { Text("Character Name") },
-                    singleLine = true
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    viewModel.addCharacter(newCharacterName)
-                    showDialog = false
-                    newCharacterName = ""
-                }) {
-                    Text("Create")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
     }
 }
 
@@ -138,6 +115,7 @@ fun CharacterRow(
     text: String,
     iconBgColor: Color,
     iconColor: Color,
+    avatarResId: Int? = null,
     onClick: () -> Unit
 ) {
     Row(
@@ -154,12 +132,23 @@ fun CharacterRow(
                 .background(iconBgColor),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Person,
-                contentDescription = "Character Avatar",
-                tint = iconColor,
-                modifier = Modifier.size(40.dp)
-            )
+            if (avatarResId != null) {
+                Image(
+                    painter = painterResource(id = avatarResId),
+                    contentDescription = "Character Avatar",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Outlined.Person,
+                    contentDescription = "Character Avatar",
+                    tint = iconColor,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(24.dp))

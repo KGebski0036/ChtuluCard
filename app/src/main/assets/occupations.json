@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Detective",
+    "pointsFormula": "INT*2 + STR*2",
+    "skills": ["Spot Hidden", "Psychology", "Law", "Listen", "Library Use", "Persuade"]
+  },
+  {
+    "name": "Doctor",
+    "pointsFormula": "EDU*2 + INT*2",
+    "skills": ["First Aid", "Medicine", "Science", "Psychology", "Language Latin", "Listen"]
+  },
+  {
+    "name": "Journalist",
+    "pointsFormula": "EDU*4",
+    "skills": ["Library Use", "History", "Persuade", "Psychology", "Spot Hidden", "Language Own"]
+  },
+  {
+    "name": "Criminal",
+    "pointsFormula": "DEX*2 + APP*2",
+    "skills": ["Stealth", "Sleight of Hand", "Locksmith", "Fast Talk", "Spot Hidden", "Fighting Brawl"]
+  }
+]

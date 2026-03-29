@@ -33,7 +33,7 @@ fun SessionScreen(
     var showDialog by remember { mutableStateOf(false) }
     var newSessionName by remember { mutableStateOf("") }
 
-    val darkRedColor = Color(0xFF4A2A2A) // Approximate color from your design
+    val darkRedColor = Color(0xFF4A2A2A)
 
     Scaffold(
         floatingActionButton = {
