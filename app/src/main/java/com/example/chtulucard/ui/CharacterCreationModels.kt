@@ -1,7 +1,8 @@
 package com.example.chtulucard.ui
 
-import androidx.annotation.DrawableRes
-import com.example.chtulucard.R
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 
 data class CharacterIdentityData(
     val name: String,
@@ -28,6 +29,10 @@ data class CharacterCreationInput(
     val power: Int,
     val intelligence: Int,
     val move: Int,
+    val sanity: Int,
+    val hp: Int,
+    val mp: Int,
+    val luck: Int,
     val occupationName: String,
     val occupationSkillsJson: String,
     val personalSkillsJson: String,
@@ -58,23 +63,22 @@ data class SkillDefinition(
     val defaultValue: Int
 )
 
-data class CharacterAvatarOption(
-    val key: String,
-    @param:DrawableRes val drawableResId: Int
-)
-
 object CharacterAvatarCatalog {
-    const val AVATAR_1 = "avatar1"
-    const val AVATAR_2 = "avatar2"
+    fun listFilenames(context: Context): List<String> =
+        context.assets.list("avatars")
+            ?.filter { it.endsWith(".png", ignoreCase = true) }
+            ?.sorted()
+            ?: emptyList()
 
-    val options = listOf(
-        CharacterAvatarOption(AVATAR_1, R.drawable.avatar1),
-        CharacterAvatarOption(AVATAR_2, R.drawable.avatar2)
-    )
-
-    @DrawableRes
-    fun drawableResIdForKey(key: String): Int {
-        return options.firstOrNull { it.key == key }?.drawableResId ?: R.drawable.avatar1
+    fun loadBitmap(context: Context, filename: String): Bitmap? {
+        if (filename.isBlank()) return null
+        return try {
+            context.assets.open("avatars/$filename").use { stream ->
+                BitmapFactory.decodeStream(stream)
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 }
 

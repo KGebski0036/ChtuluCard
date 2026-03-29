@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -35,13 +36,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -55,7 +58,8 @@ fun CharacterIdentityScreen(
     onBackClick: () -> Unit,
     onNextClick: (CharacterIdentityData) -> Unit
 ) {
-    val avatarOptions = CharacterAvatarCatalog.options
+    val context = LocalContext.current
+    val avatarFilenames = remember { CharacterAvatarCatalog.listFilenames(context) }
     var name by rememberSaveable { mutableStateOf(initialData?.name.orEmpty()) }
     var age by rememberSaveable { mutableStateOf(initialData?.age.orEmpty()) }
     var sex by rememberSaveable { mutableStateOf(initialData?.sex.orEmpty()) }
@@ -63,7 +67,7 @@ fun CharacterIdentityScreen(
     var domicile by rememberSaveable { mutableStateOf(initialData?.domicile.orEmpty()) }
     var selectedAvatarIndex by rememberSaveable {
         mutableIntStateOf(
-            avatarOptions.indexOfFirst { it.key == initialData?.avatarKey }
+            avatarFilenames.indexOfFirst { it == initialData?.avatarKey }
                 .takeIf { it >= 0 } ?: 0
         )
     }
@@ -98,7 +102,7 @@ fun CharacterIdentityScreen(
                             sex = sex.trim(),
                             placeOfBirth = placeOfBirth.trim(),
                             domicile = domicile.trim(),
-                            avatarKey = avatarOptions[selectedAvatarIndex].key
+                            avatarKey = avatarFilenames.getOrNull(selectedAvatarIndex) ?: ""
                         )
 
                         errorMessage = validateIdentity(identityData)
@@ -200,49 +204,71 @@ fun CharacterIdentityScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = {
-                    selectedAvatarIndex = (selectedAvatarIndex - 1 + avatarOptions.size) % avatarOptions.size
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Previous avatar",
-                        tint = Color.Black,
-                        modifier = Modifier.size(36.dp)
-                    )
+            if (avatarFilenames.isEmpty()) {
+                Text(
+                    text = "No avatars available.\nAdd PNG files to assets/avatars/",
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            } else {
+                val currentBitmap = remember(selectedAvatarIndex) {
+                    CharacterAvatarCatalog.loadBitmap(context, avatarFilenames[selectedAvatarIndex])
+                        ?.asImageBitmap()
                 }
 
-                Box(
-                    modifier = Modifier
-                        .size(width = 220.dp, height = 260.dp)
-                        .clip(RoundedCornerShape(30.dp))
-                        .border(width = 3.dp, color = Color(0xFF2E2E2E), shape = RoundedCornerShape(30.dp))
-                        .background(Color(0xFFF7F3FB)),
-                    contentAlignment = Alignment.Center
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = avatarOptions[selectedAvatarIndex].drawableResId),
-                        contentDescription = "Selected avatar",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(20.dp),
-                        contentScale = ContentScale.Fit
-                    )
-                }
+                    IconButton(onClick = {
+                        selectedAvatarIndex = (selectedAvatarIndex - 1 + avatarFilenames.size) % avatarFilenames.size
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Previous avatar",
+                            tint = Color.Black,
+                            modifier = Modifier.size(36.dp)
+                        )
+                    }
 
-                IconButton(onClick = {
-                    selectedAvatarIndex = (selectedAvatarIndex + 1) % avatarOptions.size
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Next avatar",
-                        tint = Color.Black,
-                        modifier = Modifier.size(36.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(width = 220.dp, height = 260.dp)
+                            .clip(RoundedCornerShape(30.dp))
+                            .border(width = 3.dp, color = Color(0xFF2E2E2E), shape = RoundedCornerShape(30.dp))
+                            .background(Color(0xFFF7F3FB)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (currentBitmap != null) {
+                            Image(
+                                bitmap = currentBitmap,
+                                contentDescription = "Selected avatar",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(20.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Outlined.Person,
+                                contentDescription = "No avatar",
+                                tint = Color(0xFF5A418A),
+                                modifier = Modifier.size(80.dp)
+                            )
+                        }
+                    }
+
+                    IconButton(onClick = {
+                        selectedAvatarIndex = (selectedAvatarIndex + 1) % avatarFilenames.size
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "Next avatar",
+                            tint = Color.Black,
+                            modifier = Modifier.size(36.dp)
+                        )
+                    }
                 }
             }
 

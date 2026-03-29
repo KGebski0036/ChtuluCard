@@ -39,11 +39,25 @@ data class CharacterEntity(
     val power: Int,
     val intelligence: Int,
     val move: Int,
+    val sanity: Int,
+    val hp: Int,
+    val mp: Int,
+    val luck: Int,
     val occupationName: String,
     val occupationSkillsJson: String,
     val personalSkillsJson: String,
     val inventoryJson: String,
-    val notesText: String
+    val notesText: String,
+    val description: String = "",
+    val ideologyBeliefs: String = "",
+    val significantPeople: String = "",
+    val meaningfulLocations: String = "",
+    val phobiasManias: String = "",
+    val arcaneTomesSpells: String = "",
+    val characterAssets: String = "",
+    val injuries: String = "",
+    val strangeEncounters: String = "",
+    val equipment: String = ""
 )
 
 @Dao
@@ -63,11 +77,14 @@ interface SessionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCharacter(character: CharacterEntity)
+
+    @Update
+    suspend fun updateCharacter(character: CharacterEntity)
 }
 
 @Database(
     entities = [SessionEntity::class, CharacterEntity::class],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

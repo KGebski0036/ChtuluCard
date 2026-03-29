@@ -14,12 +14,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -92,7 +94,7 @@ fun CharacterScreen(
                         text = character.name,
                         iconBgColor = lightPurple,
                         iconColor = darkPurple,
-                        avatarResId = CharacterAvatarCatalog.drawableResIdForKey(character.avatarKey),
+                        avatarFilename = character.avatarKey.ifBlank { null },
                         onClick = { onCharacterClick(character.id) }
                     )
                 }
@@ -115,9 +117,14 @@ fun CharacterRow(
     text: String,
     iconBgColor: Color,
     iconColor: Color,
-    avatarResId: Int? = null,
+    avatarFilename: String? = null,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val avatarBitmap = remember(avatarFilename) {
+        avatarFilename?.let { CharacterAvatarCatalog.loadBitmap(context, it)?.asImageBitmap() }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -132,9 +139,9 @@ fun CharacterRow(
                 .background(iconBgColor),
             contentAlignment = Alignment.Center
         ) {
-            if (avatarResId != null) {
+            if (avatarBitmap != null) {
                 Image(
-                    painter = painterResource(id = avatarResId),
+                    bitmap = avatarBitmap,
                     contentDescription = "Character Avatar",
                     modifier = Modifier
                         .fillMaxSize()

@@ -126,7 +126,59 @@ class MainActivity : ComponentActivity() {
                         CharacterDetailScreen(
                             sessionName = sessionName,
                             character = character,
-                            onBackClick = { navController.popBackStack() }
+                            onBackClick = { navController.popBackStack() },
+                            onSaveStats = { strength, constitution, size, dexterity, appearance, education, power, intelligence, move, sanity, hp, mp, luck ->
+                                character?.let {
+                                    detailViewModel.saveStats(
+                                        character = it,
+                                        strength = strength,
+                                        constitution = constitution,
+                                        size = size,
+                                        dexterity = dexterity,
+                                        appearance = appearance,
+                                        education = education,
+                                        power = power,
+                                        intelligence = intelligence,
+                                        move = move,
+                                        sanity = sanity,
+                                        hp = hp,
+                                        mp = mp,
+                                        luck = luck
+                                    )
+                                }
+                            },
+                            onSaveSkills = { occupationSkillsJson, personalSkillsJson ->
+                                character?.let {
+                                    detailViewModel.saveSkills(
+                                        character = it,
+                                        occupationSkillsJson = occupationSkillsJson,
+                                        personalSkillsJson = personalSkillsJson
+                                    )
+                                }
+                            },
+                            onSaveHistory = { description, ideologyBeliefs, significantPeople, meaningfulLocations, phobiasManias, arcaneTomesSpells, characterAssets, injuries, strangeEncounters, equipment ->
+                                character?.let {
+                                    detailViewModel.saveHistory(
+                                        character = it,
+                                        description = description,
+                                        ideologyBeliefs = ideologyBeliefs,
+                                        significantPeople = significantPeople,
+                                        meaningfulLocations = meaningfulLocations,
+                                        phobiasManias = phobiasManias,
+                                        arcaneTomesSpells = arcaneTomesSpells,
+                                        characterAssets = characterAssets,
+                                        injuries = injuries,
+                                        strangeEncounters = strangeEncounters,
+                                        equipment = equipment
+                                    )
+                                }
+                            },
+                            onTryAgainClick = {
+                                navController.popBackStack(
+                                    route = AppRoutes.CHARACTERS,
+                                    inclusive = false
+                                )
+                            }
                         )
                     }
 
@@ -150,7 +202,7 @@ class MainActivity : ComponentActivity() {
                             placeOfBirth = savedStateHandle.get<String>(CharacterCreationStateKeys.PLACE_OF_BIRTH).orEmpty(),
                             domicile = savedStateHandle.get<String>(CharacterCreationStateKeys.DOMICILE).orEmpty(),
                             avatarKey = savedStateHandle.get<String>(CharacterCreationStateKeys.AVATAR_KEY)
-                                ?: com.example.chtulucard.ui.CharacterAvatarCatalog.AVATAR_1
+                                ?: ""
                         )
 
                         CharacterIdentityScreen(
@@ -306,7 +358,7 @@ class MainActivity : ComponentActivity() {
                                         .orEmpty(),
                                     avatarKey = infoEntry.savedStateHandle
                                         .get<String>(CharacterCreationStateKeys.AVATAR_KEY)
-                                        ?: com.example.chtulucard.ui.CharacterAvatarCatalog.AVATAR_1,
+                                        ?: "",
                                     strength = statsData.strength,
                                     constitution = statsData.constitution,
                                     size = statsData.size,
@@ -316,6 +368,10 @@ class MainActivity : ComponentActivity() {
                                     power = statsData.power,
                                     intelligence = statsData.intelligence,
                                     move = statsData.move,
+                                    sanity = statsData.power,
+                                    hp = (statsData.constitution + statsData.size) / 10,
+                                    mp = statsData.power / 5,
+                                    luck = (statsData.power + statsData.intelligence) / 2,
                                     occupationName = occupationEntry.savedStateHandle
                                         .get<String>(CharacterCreationStateKeys.OCCUPATION_NAME)
                                         .orEmpty(),
@@ -329,7 +385,7 @@ class MainActivity : ComponentActivity() {
 
                                 characterViewModel.addCharacter(creationInput)
                                 navController.popBackStack(
-                                    route = AppRoutes.characters(sessionId, sessionName),
+                                    route = AppRoutes.CHARACTERS,
                                     inclusive = false
                                 )
                             }
