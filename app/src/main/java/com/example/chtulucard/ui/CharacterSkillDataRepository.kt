@@ -84,6 +84,40 @@ object CharacterSkillDataRepository {
         return result
     }
 
+    fun encodeTextList(items: List<String>): String {
+        return JSONArray(items).toString()
+    }
+
+    fun decodeTextList(json: String): List<String> {
+        if (json.isBlank()) return emptyList()
+
+        return try {
+            val array = JSONArray(json)
+            buildList {
+                for (index in 0 until array.length()) {
+                    val value = array.optString(index).trim()
+                    if (value.isNotEmpty()) {
+                        add(value)
+                    }
+                }
+            }
+        } catch (_: Exception) {
+            runCatching {
+                val objectJson = JSONObject(json)
+                buildList {
+                    val keys = objectJson.keys()
+                    while (keys.hasNext()) {
+                        val key = keys.next()
+                        val value = objectJson.optString(key).trim()
+                        if (value.isNotEmpty()) {
+                            add(key.takeIf { it.isNotBlank() }?.let { "$it x$value" } ?: value)
+                        }
+                    }
+                }
+            }.getOrDefault(emptyList())
+        }
+    }
+
     private fun readAsset(context: Context, fileName: String): String {
         return context.assets.open(fileName).bufferedReader().use { it.readText() }
     }

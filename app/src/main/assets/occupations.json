@@ -1,22 +1,374 @@
 [
   {
-    "name": "Detective",
-    "pointsFormula": "INT*2 + STR*2",
-    "skills": ["Spot Hidden", "Psychology", "Law", "Listen", "Library Use", "Persuade"]
+    "name": "Federal Agent",
+    "pointsFormula": "EDU*4",
+    "wealth": "40-70",
+    "skills": ["Firearms (various)", "Law", "Persuade", "Drive Auto", "Spot Hidden", "Stealth", "Fighting", "Any Skill"]
   },
   {
-    "name": "Doctor",
-    "pointsFormula": "EDU*2 + INT*2",
-    "skills": ["First Aid", "Medicine", "Science", "Psychology", "Language Latin", "Listen"]
+    "name": "Actor",
+    "pointsFormula": "EDU*2 + APP*2",
+    "wealth": "9-70",
+    "skills": ["Acting", "Disguise", "Psychology", "Fast Talk", "Persuade", "History", "Fighting", "Any Skill"]
+  },
+  {
+    "name": "Psychiatrist",
+    "pointsFormula": "EDU*4",
+    "wealth": "30-80",
+    "skills": ["Medicine", "Psychology", "Psychoanalysis", "Biology", "Chemistry", "Listen", "Persuade", "Foreign Language"]
+  },
+  {
+    "name": "Archaeologist",
+    "pointsFormula": "EDU*4",
+    "wealth": "10-40",
+    "skills": ["Archaeology", "History", "Library Use", "Spot Hidden", "Science", "Foreign Language", "Persuade", "Any Skill"]
+  },
+  {
+    "name": "Architect",
+    "pointsFormula": "EDU*4",
+    "wealth": "30-70",
+    "skills": ["Mathematics", "Engineering", "Drawing", "Computer Use", "Library Use", "Persuade", "Law", "Any Skill"]
+  },
+  {
+    "name": "Artist",
+    "pointsFormula": "EDU*2 + APP*2",
+    "wealth": "9-50",
+    "skills": ["Art", "History", "Psychology", "Spot Hidden", "Persuade", "Craft", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Barman",
+    "pointsFormula": "EDU*2 + APP*2",
+    "wealth": "8-25",
+    "skills": ["Fast Talk", "Persuade", "Psychology", "Listen", "Spot Hidden", "Fighting", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Librarian",
+    "pointsFormula": "EDU*4",
+    "wealth": "9-35",
+    "skills": ["Library Use", "History", "Foreign Language", "Spot Hidden", "Accounting", "Computer Use", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Boxer/Wrestler",
+    "pointsFormula": "STR*2 + DEX*2",
+    "wealth": "9-60",
+    "skills": ["Fighting", "Dodge", "Jump", "Climb", "Intimidate", "Spot Hidden", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Detective",
+    "pointsFormula": "EDU*4",
+    "wealth": "20-50",
+    "skills": ["Law", "Psychology", "Spot Hidden", "Persuade", "Library Use", "Listen", "Firearms (various)", "Any Skill"]
+  },
+  {
+    "name": "Clergyman",
+    "pointsFormula": "EDU*4",
+    "wealth": "9-60",
+    "skills": ["Persuade", "Psychology", "History", "Listen", "Occult", "Library Use", "Foreign Language", "Any Skill"]
   },
   {
     "name": "Journalist",
     "pointsFormula": "EDU*4",
-    "skills": ["Library Use", "History", "Persuade", "Psychology", "Spot Hidden", "Language Own"]
+    "wealth": "9-30",
+    "skills": ["Library Use", "History", "Persuade", "Psychology", "Spot Hidden", "Native Language", "Photography", "Any Skill"]
   },
   {
     "name": "Criminal",
     "pointsFormula": "DEX*2 + APP*2",
-    "skills": ["Stealth", "Sleight of Hand", "Locksmith", "Fast Talk", "Spot Hidden", "Fighting Brawl"]
+    "wealth": "5-50",
+    "skills": ["Stealth", "Locksmith", "Fast Talk", "Sleight of Hand", "Spot Hidden", "Fighting", "Firearms (various)", "Any Skill"]
+  },
+  {
+    "name": "Farmer",
+    "pointsFormula": "EDU*2 + STR*2",
+    "wealth": "9-30",
+    "skills": ["Animal Handling", "Mechanical Repair", "Natural World", "Spot Hidden", "Drive Auto", "Survival", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Photographer",
+    "pointsFormula": "EDU*4",
+    "wealth": "9-40",
+    "skills": ["Photography", "Art", "Spot Hidden", "Computer Use", "Persuade", "Psychology", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Engineer",
+    "pointsFormula": "EDU*4",
+    "wealth": "30-70",
+    "skills": ["Engineering", "Mathematics", "Mechanical Repair", "Electrical Repair", "Computer Use", "Science", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Doctor",
+    "pointsFormula": "EDU*4",
+    "wealth": "30-80",
+    "skills": ["Medicine", "First Aid", "Psychology", "Biology", "Pharmacy", "Foreign Language", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Scientist",
+    "pointsFormula": "EDU*4",
+    "wealth": "9-50",
+    "skills": ["Science", "Science", "Science", "Library Use", "Computer Use", "Mathematics", "Foreign Language", "Any Skill"]
+  },
+  {
+    "name": "Lawyer",
+    "pointsFormula": "EDU*4",
+    "wealth": "30-80",
+    "skills": ["Law", "Persuade", "Psychology", "Library Use", "Accounting", "History", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Professor",
+    "pointsFormula": "EDU*4",
+    "wealth": "20-70",
+    "skills": ["Library Use", "Foreign Language", "Persuade", "Psychology", "Science", "History", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Programmer/Technician/Computer Hacker",
+    "pointsFormula": "EDU*4",
+    "wealth": "10-70",
+    "skills": ["Computer Use", "Electronics", "Electrical Repair", "Cryptography", "Library Use", "Mathematics", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Nurse",
+    "pointsFormula": "EDU*4",
+    "wealth": "9-30",
+    "skills": ["First Aid", "Medicine", "Psychology", "Listen", "Persuade", "Biology", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Pilot",
+    "pointsFormula": "DEX*2 + EDU*2",
+    "wealth": "20-70",
+    "skills": ["Pilot", "Navigation", "Mechanical Repair", "Electrical Repair", "Spot Hidden", "Science", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Police Officer",
+    "pointsFormula": "EDU*2 + STR*2",
+    "wealth": "9-30",
+    "skills": ["Law", "Fighting", "Firearms (various)", "Drive Auto", "Spot Hidden", "Persuade", "Psychology", "Any Skill"]
+  },
+  {
+    "name": "Private Investigator",
+    "pointsFormula": "EDU*4",
+    "wealth": "9-30",
+    "skills": ["Law", "Library Use", "Spot Hidden", "Psychology", "Persuade", "Stealth", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Soldier",
+    "pointsFormula": "STR*2 + DEX*2",
+    "wealth": "9-30",
+    "skills": ["Firearms (various)", "Fighting", "Survival", "First Aid", "Navigate", "Spot Hidden", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Acrobat",
+    "pointsFormula": "DEX*4",
+    "wealth": "9-30",
+    "skills": ["Jump", "Climb", "Dodge", "Balance", "Throw", "Spot Hidden", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Performer",
+    "pointsFormula": "APP*2 + EDU*2",
+    "wealth": "9-60",
+    "skills": ["Acting", "Fast Talk", "Persuade", "Psychology", "Listen", "Art", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Wealthy Hobbyist",
+    "pointsFormula": "EDU*2 + APP*2",
+    "wealth": "60-99",
+    "skills": ["Art", "Firearms (various)", "Science", "Pilot", "Persuade", "Ride", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Tribal Man",
+    "pointsFormula": "STR*2 + DEX*2",
+    "wealth": "0-15",
+    "skills": ["Survival", "Tracking", "Spear", "Natural World", "Stealth", "Listen", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Deprogrammer",
+    "pointsFormula": "EDU*4",
+    "wealth": "20-60",
+    "skills": ["Psychology", "Psychoanalysis", "Persuade", "Intimidate", "Law", "Listen", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Manual Labourer",
+    "pointsFormula": "STR*2 + DEX*2",
+    "wealth": "5-30",
+    "skills": ["Climb", "Jump", "Mechanical Repair", "Operate Heavy Machinery", "Spot Hidden", "Any Skill", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Union Activist",
+    "pointsFormula": "EDU*2 + APP*2",
+    "wealth": "9-40",
+    "skills": ["Persuade", "Fast Talk", "Psychology", "Law", "Listen", "Intimidate", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Gangster",
+    "pointsFormula": "DEX*2 + STR*2",
+    "wealth": "10-50",
+    "skills": ["Firearms (various)", "Fighting", "Intimidate", "Fast Talk", "Drive Auto", "Spot Hidden", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Antiques Dealer",
+    "pointsFormula": "EDU*4",
+    "wealth": "30-80",
+    "skills": ["Appraise", "History", "Persuade", "Spot Hidden", "Library Use", "Accounting", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Gambler",
+    "pointsFormula": "APP*2 + DEX*2",
+    "wealth": "5-70",
+    "skills": ["Fast Talk", "Psychology", "Spot Hidden", "Sleight of Hand", "Accounting", "Persuade", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Butler/Valet/Maid",
+    "pointsFormula": "EDU*2 + APP*2",
+    "wealth": "9-40",
+    "skills": ["Listen", "Spot Hidden", "Psychology", "Persuade", "Drive Auto", "Any Skill", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Stuntman",
+    "pointsFormula": "DEX*4",
+    "wealth": "10-50",
+    "skills": ["Jump", "Climb", "Dodge", "Drive Auto", "Fighting", "Swim", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Waiter",
+    "pointsFormula": "DEX*2 + APP*2",
+    "wealth": "5-20",
+    "skills": ["Listen", "Spot Hidden", "Persuade", "Psychology", "Fast Talk", "Any Skill", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Driver",
+    "pointsFormula": "DEX*2 + EDU*2",
+    "wealth": "9-40",
+    "skills": ["Drive Auto", "Mechanical Repair", "Spot Hidden", "Navigate", "Listen", "Any Skill", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Sales Representative",
+    "pointsFormula": "APP*2 + EDU*2",
+    "wealth": "20-60",
+    "skills": ["Persuade", "Fast Talk", "Psychology", "Accounting", "Drive Auto", "Spot Hidden", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Foreign Correspondent",
+    "pointsFormula": "EDU*4",
+    "wealth": "20-70",
+    "skills": ["Foreign Language", "History", "Persuade", "Psychology", "Photography", "Spot Hidden", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Cowboy",
+    "pointsFormula": "DEX*2 + STR*2",
+    "wealth": "5-30",
+    "skills": ["Ride", "Firearms (various)", "Survival", "Tracking", "Animal Handling", "Spot Hidden", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Accountant",
+    "pointsFormula": "EDU*4",
+    "wealth": "30-70",
+    "skills": ["Accounting", "Library Use", "Computer Use", "Law", "Spot Hidden", "Any Skill", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Curator",
+    "pointsFormula": "EDU*4",
+    "wealth": "20-60",
+    "skills": ["History", "Library Use", "Persuade", "Psychology", "Spot Hidden", "Appraise", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Big Game Hunter",
+    "pointsFormula": "DEX*2 + STR*2",
+    "wealth": "20-80",
+    "skills": ["Firearms (various)", "Tracking", "Survival", "Spot Hidden", "Natural World", "Stealth", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Bounty Hunter",
+    "pointsFormula": "DEX*2 + STR*2",
+    "wealth": "10-60",
+    "skills": ["Tracking", "Firearms (various)", "Fighting", "Spot Hidden", "Law", "Drive Auto", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Mechanic",
+    "pointsFormula": "EDU*2 + DEX*2",
+    "wealth": "10-40",
+    "skills": ["Mechanical Repair", "Electrical Repair", "Drive Auto", "Operate Heavy Machinery", "Spot Hidden", "Any Skill", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Occultist",
+    "pointsFormula": "EDU*4",
+    "wealth": "9-50",
+    "skills": ["Occult", "History", "Library Use", "Foreign Language", "Psychology", "Persuade", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Con Artist",
+    "pointsFormula": "APP*2 + DEX*2",
+    "wealth": "5-60",
+    "skills": ["Fast Talk", "Persuade", "Psychology", "Sleight of Hand", "Disguise", "Spot Hidden", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Parapsychologist",
+    "pointsFormula": "EDU*4",
+    "wealth": "10-50",
+    "skills": ["Occult", "Psychology", "Science", "Library Use", "Persuade", "Spot Hidden", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Fence",
+    "pointsFormula": "APP*2 + EDU*2",
+    "wealth": "10-60",
+    "skills": ["Appraise", "Fast Talk", "Persuade", "Psychology", "Spot Hidden", "Accounting", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Writer",
+    "pointsFormula": "EDU*4",
+    "wealth": "9-60",
+    "skills": ["Native Language", "History", "Psychology", "Library Use", "Persuade", "Any Skill", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Seeker",
+    "pointsFormula": "EDU*2 + APP*2",
+    "wealth": "5-50",
+    "skills": ["Library Use", "Occult", "Persuade", "Psychology", "Spot Hidden", "Any Skill", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Firefighter",
+    "pointsFormula": "STR*2 + DEX*2",
+    "wealth": "9-40",
+    "skills": ["Climb", "Jump", "First Aid", "Mechanical Repair", "Spot Hidden", "Drive Auto", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Student/Intern",
+    "pointsFormula": "EDU*4",
+    "wealth": "5-20",
+    "skills": ["Library Use", "Computer Use", "Science", "History", "Psychology", "Any Skill", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Smuggler",
+    "pointsFormula": "DEX*2 + APP*2",
+    "wealth": "10-60",
+    "skills": ["Stealth", "Fast Talk", "Navigate", "Drive Auto", "Firearms (various)", "Spot Hidden", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Spy",
+    "pointsFormula": "DEX*2 + APP*2",
+    "wealth": "20-80",
+    "skills": ["Disguise", "Stealth", "Persuade", "Psychology", "Firearms (various)", "Foreign Language", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Trapper",
+    "pointsFormula": "STR*2 + DEX*2",
+    "wealth": "5-30",
+    "skills": ["Survival", "Tracking", "Animal Handling", "Stealth", "Firearms (various)", "Spot Hidden", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Animal Trainer",
+    "pointsFormula": "EDU*2 + APP*2",
+    "wealth": "10-50",
+    "skills": ["Animal Handling", "Psychology", "Persuade", "Listen", "Spot Hidden", "Any Skill", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Vagrant",
+    "pointsFormula": "DEX*2 + STR*2",
+    "wealth": "0-10",
+    "skills": ["Stealth", "Survival", "Listen", "Spot Hidden", "Dodge", "Any Skill", "Any Skill", "Any Skill"]
+  },
+  {
+    "name": "Mountaineer",
+    "pointsFormula": "STR*2 + DEX*2",
+    "wealth": "9-40",
+    "skills": ["Climb", "Survival", "Navigate", "Spot Hidden", "First Aid", "Jump", "Any Skill", "Any Skill"]
   }
 ]

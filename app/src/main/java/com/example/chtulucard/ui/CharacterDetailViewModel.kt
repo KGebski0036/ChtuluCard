@@ -96,4 +96,24 @@ class CharacterDetailViewModel(
             )
         }
     }
+
+    fun saveInventory(character: CharacterEntity, inventoryJson: String) {
+        viewModelScope.launch {
+            dao.updateCharacter(
+                character.copy(
+                    inventoryJson = inventoryJson
+                )
+            )
+        }
+    }
+
+    fun saveNotes(character: CharacterEntity, notesText: String) {
+        viewModelScope.launch {
+            dao.updateCharacter(
+                character.copy(
+                    notesText = notesText
+                )
+            )
+        }
+    }
 }

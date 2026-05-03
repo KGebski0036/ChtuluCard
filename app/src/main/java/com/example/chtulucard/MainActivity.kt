@@ -16,6 +16,7 @@ import com.example.chtulucard.ui.SessionScreen
 import com.example.chtulucard.ui.SessionViewModel
 import com.example.chtulucard.ui.theme.ChtuluCardTheme
 import androidx.navigation.NavType
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -156,6 +157,22 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             },
+                            onSaveInventory = { inventoryJson ->
+                                character?.let {
+                                    detailViewModel.saveInventory(
+                                        character = it,
+                                        inventoryJson = inventoryJson
+                                    )
+                                }
+                            },
+                            onSaveNotes = { notesText ->
+                                character?.let {
+                                    detailViewModel.saveNotes(
+                                        character = it,
+                                        notesText = notesText
+                                    )
+                                }
+                            },
                             onSaveHistory = { description, ideologyBeliefs, significantPeople, meaningfulLocations, phobiasManias, arcaneTomesSpells, characterAssets, injuries, strangeEncounters, equipment ->
                                 character?.let {
                                     detailViewModel.saveHistory(
@@ -174,10 +191,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             },
                             onTryAgainClick = {
-                                navController.popBackStack(
-                                    route = AppRoutes.CHARACTERS,
-                                    inclusive = false
-                                )
+                                navController.navigateToCharactersAfterCreation(sessionId, sessionName)
                             }
                         )
                     }
@@ -383,15 +397,33 @@ class MainActivity : ComponentActivity() {
                                     notesText = ""
                                 )
 
-                                characterViewModel.addCharacter(creationInput)
-                                navController.popBackStack(
-                                    route = AppRoutes.CHARACTERS,
-                                    inclusive = false
+                                characterViewModel.addCharacter(
+                                    input = creationInput,
+                                    onSaved = {
+                                        navController.navigateToCharactersAfterCreation(sessionId, sessionName)
+                                    },
+                                    onError = {
+                                        navController.navigateToCharactersAfterCreation(sessionId, sessionName)
+                                    }
                                 )
                             }
                         )
                     }
                 }
+            }
+        }
+    }
+
+    private fun NavHostController.navigateToCharactersAfterCreation(sessionId: Int, sessionName: String) {
+        val route = AppRoutes.characters(sessionId, sessionName)
+        runCatching {
+            navigate(route) {
+                launchSingleTop = true
+            }
+        }.onFailure {
+            // Last-resort fallback that keeps the app alive even if route state is unexpected.
+            navigate(AppRoutes.SESSIONS) {
+                launchSingleTop = true
             }
         }
     }

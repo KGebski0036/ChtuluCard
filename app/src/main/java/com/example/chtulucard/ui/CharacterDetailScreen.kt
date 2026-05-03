@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,12 +29,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -99,6 +106,8 @@ fun CharacterDetailScreen(
         Int
     ) -> Unit,
     onSaveSkills: (String, String) -> Unit,
+    onSaveInventory: (String) -> Unit,
+    onSaveNotes: (String) -> Unit,
     onSaveHistory: (String, String, String, String, String, String, String, String, String, String) -> Unit,
     onTryAgainClick: () -> Unit
 ) {
@@ -108,7 +117,7 @@ fun CharacterDetailScreen(
         character?.avatarKey?.let { CharacterAvatarCatalog.loadBitmap(context, it)?.asImageBitmap() }
     }
     var currentHp by rememberSaveable(character?.id) {
-        mutableStateOf(character?.hp ?: 1)
+        mutableStateOf<Int?>(character?.hp)
     }
     var isDead by rememberSaveable(character?.id) { mutableStateOf(false) }
     var showDeathVideo by rememberSaveable(character?.id) { mutableStateOf(false) }
@@ -116,7 +125,12 @@ fun CharacterDetailScreen(
     var suppressDeathUntilHpPositive by rememberSaveable(character?.id) { mutableStateOf(false) }
 
     LaunchedEffect(currentHp) {
-        if (currentHp > 0) {
+        val hpValue = currentHp
+        if (hpValue == null) {
+            return@LaunchedEffect
+        }
+
+        if (hpValue > 0) {
             suppressDeathUntilHpPositive = false
             if (isDead && !showDeathVideo) {
                 isDead = false
@@ -125,7 +139,7 @@ fun CharacterDetailScreen(
             return@LaunchedEffect
         }
 
-        if (currentHp <= 0 && !isDead && !suppressDeathUntilHpPositive) {
+        if (hpValue <= 0 && !isDead && !suppressDeathUntilHpPositive) {
             isDead = true
             showDeathVideo = true
             deathVideoFinished = false
@@ -135,7 +149,10 @@ fun CharacterDetailScreen(
     Scaffold(
         containerColor = Color.White,
         bottomBar = {
-            NavigationBar(containerColor = Color(0xFFEFEAF7)) {
+            NavigationBar(
+                modifier = Modifier.bottomBarInsets(),
+                containerColor = Color(0xFFEFEAF7)
+            ) {
                 NavigationBarItem(
                     selected = selectedTab == CharacterDetailTab.Info,
                     onClick = { selectedTab = CharacterDetailTab.Info },
@@ -236,8 +253,16 @@ fun CharacterDetailScreen(
                         onSaveSkills = onSaveSkills,
                         isDead = isDead
                     )
-                    CharacterDetailTab.Inventory -> CharacterInventoryTab(character = character)
-                    CharacterDetailTab.Notes -> CharacterNotesTab(character = character)
+                    CharacterDetailTab.Inventory -> CharacterInventoryTab(
+                        character = character,
+                        onSaveInventory = onSaveInventory,
+                        isDead = isDead
+                    )
+                    CharacterDetailTab.Notes -> CharacterNotesTab(
+                        character = character,
+                        onSaveNotes = onSaveNotes,
+                        isDead = isDead
+                    )
                     CharacterDetailTab.History -> CharacterHistoryTab(
                         character = character,
                         onSaveHistory = onSaveHistory,
@@ -267,7 +292,7 @@ private fun CharacterInfoTab(
     avatarBitmap: androidx.compose.ui.graphics.ImageBitmap?,
     onSaveStats: (Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int) -> Unit,
     isDead: Boolean,
-    onHpChanged: (Int) -> Unit
+    onHpChanged: (Int?) -> Unit
 ) {
     var strengthText by rememberSaveable(character.id) { mutableStateOf(character.strength.toString()) }
     var constitutionText by rememberSaveable(character.id) { mutableStateOf(character.constitution.toString()) }
@@ -285,7 +310,7 @@ private fun CharacterInfoTab(
     var luckText by rememberSaveable(character.id) { mutableStateOf(character.luck.toString()) }
 
     LaunchedEffect(hpText) {
-        onHpChanged(hpText.toIntOrNull() ?: 0)
+        onHpChanged(hpText.toIntOrNull())
     }
 
     Column(
@@ -351,7 +376,7 @@ private fun CharacterInfoTab(
         SimpleEditRow("Sanity", sanityText, enabled = !isDead) { sanityText = it }
         SimpleEditRow("HP", hpText, enabled = !isDead) {
             hpText = it
-            onHpChanged(it.toIntOrNull() ?: 0)
+            onHpChanged(it.toIntOrNull())
         }
         SimpleEditRow("MP", mpText, enabled = !isDead) { mpText = it }
         SimpleEditRow("Luck", luckText, enabled = !isDead) { luckText = it }
@@ -973,37 +998,171 @@ private fun DeathStateBanner(
 }
 
 @Composable
-private fun CharacterInventoryTab(character: CharacterEntity) {
-    val inventoryMap = remember(character.inventoryJson) {
-        CharacterSkillDataRepository.decodeAllocation(character.inventoryJson)
+private fun CharacterInventoryTab(
+    character: CharacterEntity,
+    onSaveInventory: (String) -> Unit,
+    isDead: Boolean
+) {
+    var pendingItem by rememberSaveable(character.id) { mutableStateOf("") }
+    var inventoryItems by rememberSaveable(character.id, character.inventoryJson) {
+        mutableStateOf(CharacterSkillDataRepository.decodeTextList(character.inventoryJson))
     }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        if (inventoryMap.isEmpty()) {
-            Text("Inventory is empty.")
-        } else {
-            inventoryMap.entries.sortedBy { it.key }.forEach { (item, amount) ->
-                DetailStatRow(label = item, value = amount.ifBlank { "1" })
+        SectionTitle("Inventory")
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            OutlinedTextField(
+                value = pendingItem,
+                onValueChange = { pendingItem = it },
+                modifier = Modifier.weight(1f),
+                enabled = !isDead,
+                label = { Text("Equipment") },
+                placeholder = { Text("Add torch, pistol, rope...") },
+                minLines = 2,
+                maxLines = 4
+            )
+
+            Button(
+                onClick = {
+                    val trimmed = pendingItem.trim()
+                    if (trimmed.isNotEmpty()) {
+                        inventoryItems = inventoryItems + trimmed
+                        pendingItem = ""
+                    }
+                },
+                enabled = !isDead && pendingItem.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5A418A))
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add inventory item")
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Add", color = Color.White)
             }
+        }
+
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val listHeight = if (inventoryItems.size > 3) 280.dp else 180.dp
+
+            if (inventoryItems.isEmpty()) {
+                Text(
+                    text = "Inventory is empty.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Gray
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(listHeight),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    itemsIndexed(inventoryItems) { index, item ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF4F1F9))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = item,
+                                    modifier = Modifier.weight(1f),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = Color.Black
+                                )
+
+                                IconButton(
+                                    onClick = {
+                                        inventoryItems = inventoryItems.filterIndexed { itemIndex, _ ->
+                                            itemIndex != index
+                                        }
+                                    },
+                                    enabled = !isDead
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = "Delete inventory item",
+                                        tint = Color(0xFF8A1C1C)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Button(
+            onClick = {
+                onSaveInventory(CharacterSkillDataRepository.encodeTextList(inventoryItems))
+            },
+            enabled = !isDead,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5A418A))
+        ) {
+            Text(text = "Save inventory", color = Color.White)
+        }
+
+        if (isDead) {
+            Text(
+                text = "Character is dead. Editing is disabled.",
+                color = Color(0xFF8A1C1C),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
 
 @Composable
-private fun CharacterNotesTab(character: CharacterEntity) {
+private fun CharacterNotesTab(
+    character: CharacterEntity,
+    onSaveNotes: (String) -> Unit,
+    isDead: Boolean
+) {
+    var notesText by rememberSaveable(character.id) { mutableStateOf(character.notesText) }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        if (character.notesText.isBlank()) {
-            Text("No notes yet.")
-        } else {
+        SectionTitle("Notes")
+
+        OutlinedTextField(
+            value = notesText,
+            onValueChange = { notesText = it },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isDead,
+            label = { Text("Session notes") },
+            placeholder = { Text("Write clues, NPC details, plans, and reminders...") },
+            minLines = 10,
+            maxLines = 14
+        )
+
+        Button(
+            onClick = { onSaveNotes(notesText.trim()) },
+            enabled = !isDead,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5A418A))
+        ) {
+            Text(text = "Save notes", color = Color.White)
+        }
+
+        if (isDead) {
             Text(
-                text = character.notesText,
-                style = MaterialTheme.typography.bodyLarge
+                text = "Character is dead. Editing is disabled.",
+                color = Color(0xFF8A1C1C),
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }

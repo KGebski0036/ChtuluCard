@@ -37,7 +37,7 @@
   {"name":"Cryptography","defaultValue":1},
   {"name":"Accounting","defaultValue":5},
   {"name":"Bow","defaultValue":15},
-  {"name":"Credit Rating","defaultValue":0},
+  {"name":"Wealth","defaultValue":0},
   {"name":"Mathematics","defaultValue":10},
   {"name":"Explosives","defaultValue":1},
   {"name":"Mechanical Repair","defaultValue":10},
