@@ -20,10 +20,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -212,7 +217,6 @@ fun CharacterDetailScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 20.dp)
-                    .verticalScroll(rememberScrollState())
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -239,38 +243,48 @@ fun CharacterDetailScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                when (selectedTab) {
-                    CharacterDetailTab.Info -> CharacterInfoTab(
-                        character = character,
-                        sessionName = sessionName,
-                        avatarBitmap = avatarBitmap,
-                        onSaveStats = onSaveStats,
-                        isDead = isDead,
-                        onHpChanged = { hp -> currentHp = hp }
-                    )
-                    CharacterDetailTab.Skills -> CharacterSkillsTab(
+                if (selectedTab == CharacterDetailTab.Skills) {
+                    CharacterSkillsTab(
+                        modifier = Modifier.weight(1f),
                         character = character,
                         onSaveSkills = onSaveSkills,
                         isDead = isDead
                     )
-                    CharacterDetailTab.Inventory -> CharacterInventoryTab(
-                        character = character,
-                        onSaveInventory = onSaveInventory,
-                        isDead = isDead
-                    )
-                    CharacterDetailTab.Notes -> CharacterNotesTab(
-                        character = character,
-                        onSaveNotes = onSaveNotes,
-                        isDead = isDead
-                    )
-                    CharacterDetailTab.History -> CharacterHistoryTab(
-                        character = character,
-                        onSaveHistory = onSaveHistory,
-                        isDead = isDead
-                    )
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        when (selectedTab) {
+                            CharacterDetailTab.Info -> CharacterInfoTab(
+                                character = character,
+                                sessionName = sessionName,
+                                avatarBitmap = avatarBitmap,
+                                onSaveStats = onSaveStats,
+                                isDead = isDead,
+                                onHpChanged = { hp -> currentHp = hp }
+                            )
+                            CharacterDetailTab.Inventory -> CharacterInventoryTab(
+                                character = character,
+                                onSaveInventory = onSaveInventory,
+                                isDead = isDead
+                            )
+                            CharacterDetailTab.Notes -> CharacterNotesTab(
+                                character = character,
+                                onSaveNotes = onSaveNotes,
+                                isDead = isDead
+                            )
+                            CharacterDetailTab.History -> CharacterHistoryTab(
+                                character = character,
+                                onSaveHistory = onSaveHistory,
+                                isDead = isDead
+                            )
+                            else -> {}
+                        }
+                        Spacer(modifier = Modifier.height(18.dp))
+                    }
                 }
-
-                Spacer(modifier = Modifier.height(18.dp))
             }
 
             if (showDeathVideo) {
@@ -635,7 +649,8 @@ private fun SimpleEditRow(
 private fun CharacterSkillsTab(
     character: CharacterEntity,
     onSaveSkills: (String, String) -> Unit,
-    isDead: Boolean
+    isDead: Boolean,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val defaultValues = remember {
@@ -661,27 +676,29 @@ private fun CharacterSkillsTab(
         )
     }
 
-    val occupation = remember(character.occupationSkillsJson) {
-        CharacterSkillDataRepository.decodeAllocation(character.occupationSkillsJson)
+    val sortedOccupationEntries = remember(occupationValues) {
+        occupationValues.entries.sortedBy { it.key }
     }
-    val personal = remember(character.personalSkillsJson) {
-        CharacterSkillDataRepository.decodeAllocation(character.personalSkillsJson)
+    val sortedPersonalEntries = remember(personalValues) {
+        personalValues.entries.sortedBy { it.key }
     }
 
-    Column(
-        modifier = Modifier.fillMaxWidth(),
+    LazyColumn(
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = "Occupation skills",
-            style = MaterialTheme.typography.titleMedium,
-            fontStyle = FontStyle.Italic
-        )
-        SkillsHeaderRow()
-        if (occupationValues.isEmpty()) {
-            Text("No occupation skills assigned.")
+        item {
+            Text(
+                text = "Occupation skills",
+                style = MaterialTheme.typography.titleMedium,
+                fontStyle = FontStyle.Italic
+            )
+        }
+        item { SkillsHeaderRow() }
+        if (sortedOccupationEntries.isEmpty()) {
+            item { Text("No occupation skills assigned.") }
         } else {
-            occupationValues.toSortedMap().forEach { (skill, points) ->
+            items(sortedOccupationEntries, key = { it.key }) { (skill, points) ->
                 SkillEditRow(
                     label = skill,
                     value = points,
@@ -694,18 +711,20 @@ private fun CharacterSkillsTab(
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        item { Spacer(modifier = Modifier.height(10.dp)) }
 
-        Text(
-            text = "Personal skills",
-            style = MaterialTheme.typography.titleMedium,
-            fontStyle = FontStyle.Italic
-        )
-        SkillsHeaderRow()
-        if (personalValues.isEmpty()) {
-            Text("No personal skills assigned.")
+        item {
+            Text(
+                text = "Personal skills",
+                style = MaterialTheme.typography.titleMedium,
+                fontStyle = FontStyle.Italic
+            )
+        }
+        item { SkillsHeaderRow() }
+        if (sortedPersonalEntries.isEmpty()) {
+            item { Text("No personal skills assigned.") }
         } else {
-            personalValues.toSortedMap().forEach { (skill, points) ->
+            items(sortedPersonalEntries, key = { it.key }) { (skill, points) ->
                 SkillEditRow(
                     label = skill,
                     value = points,
@@ -718,34 +737,38 @@ private fun CharacterSkillsTab(
             }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        item { Spacer(modifier = Modifier.height(14.dp)) }
 
-        Button(
-            onClick = {
-                val normalizedOccupation = occupationValues.mapValues { (skill, points) ->
-                    points.ifBlank { (defaultValues[skill] ?: 0).toString() }
-                }
-                val normalizedPersonal = personalValues.mapValues { (skill, points) ->
-                    points.ifBlank { (defaultValues[skill] ?: 0).toString() }
-                }
-                onSaveSkills(
-                    CharacterSkillDataRepository.encodeAllocation(normalizedOccupation),
-                    CharacterSkillDataRepository.encodeAllocation(normalizedPersonal)
-                )
-            },
-            enabled = !isDead,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5A418A))
-        ) {
-            Text(text = "Save skills", color = Color.White)
+        item {
+            Button(
+                onClick = {
+                    val normalizedOccupation = occupationValues.mapValues { (skill, points) ->
+                        points.ifBlank { (defaultValues[skill] ?: 0).toString() }
+                    }
+                    val normalizedPersonal = personalValues.mapValues { (skill, points) ->
+                        points.ifBlank { (defaultValues[skill] ?: 0).toString() }
+                    }
+                    onSaveSkills(
+                        CharacterSkillDataRepository.encodeAllocation(normalizedOccupation),
+                        CharacterSkillDataRepository.encodeAllocation(normalizedPersonal)
+                    )
+                },
+                enabled = !isDead,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5A418A))
+            ) {
+                Text(text = "Save skills", color = Color.White)
+            }
         }
 
         if (isDead) {
-            Text(
-                text = "Character is dead. Editing is disabled.",
-                color = Color(0xFF8A1C1C),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            item {
+                Text(
+                    text = "Character is dead. Editing is disabled.",
+                    color = Color(0xFF8A1C1C),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }
@@ -795,6 +818,8 @@ private fun SkillEditRow(
     onValueChange: (String) -> Unit
 ) {
     val parsedValue = value.toIntOrNull() ?: 0
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
 
     Row(
         modifier = Modifier
@@ -811,7 +836,7 @@ private fun SkillEditRow(
             color = Color.Black
         )
 
-        OutlinedTextField(
+        BasicTextField(
             value = value,
             onValueChange = { input ->
                 if (input.isEmpty() || input.all { it.isDigit() }) {
@@ -820,8 +845,26 @@ private fun SkillEditRow(
             },
             enabled = enabled,
             singleLine = true,
-            modifier = Modifier.weight(1f),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            textStyle = androidx.compose.ui.text.TextStyle(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.Black,
+                textAlign = TextAlign.Center
+            ),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            interactionSource = interactionSource,
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(6.dp))
+                .background(
+                    if (isFocused) Color(0xFFEDE8F5) else Color(0xFFF5F5F5)
+                )
+                .border(
+                    width = if (isFocused) 2.dp else 1.dp,
+                    color = if (isFocused) Color(0xFF5A418A) else Color(0xFFCCCCCC),
+                    shape = RoundedCornerShape(6.dp)
+                )
+                .padding(horizontal = 8.dp, vertical = 10.dp)
         )
 
         Column(

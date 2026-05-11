@@ -6,36 +6,60 @@ import org.json.JSONObject
 
 object CharacterSkillDataRepository {
 
+    @Volatile
+    private var cachedOccupations: List<OccupationDefinition>? = null
+
+    @Volatile
+    private var cachedSkills: List<SkillDefinition>? = null
+
     fun loadOccupations(context: Context): List<OccupationDefinition> {
-        val json = readAsset(context, "occupations.json")
-        val array = JSONArray(json)
-        return buildList {
-            for (index in 0 until array.length()) {
-                val item = array.getJSONObject(index)
-                add(
-                    OccupationDefinition(
-                        name = item.optString("name"),
-                        pointsFormula = item.optString("pointsFormula"),
-                        skills = readStringList(item, "skills")
+        cachedOccupations?.let { return it }
+
+        return synchronized(this) {
+            cachedOccupations?.let { return@synchronized it }
+
+            val json = readAsset(context, "occupations.json")
+            val array = JSONArray(json)
+            val parsed = buildList {
+                for (index in 0 until array.length()) {
+                    val item = array.getJSONObject(index)
+                    add(
+                        OccupationDefinition(
+                            name = item.optString("name"),
+                            pointsFormula = item.optString("pointsFormula"),
+                            skills = readStringList(item, "skills")
+                        )
                     )
-                )
+                }
             }
+
+            cachedOccupations = parsed
+            parsed
         }
     }
 
     fun loadSkills(context: Context): List<SkillDefinition> {
-        val json = readAsset(context, "skills.json")
-        val array = JSONArray(json)
-        return buildList {
-            for (index in 0 until array.length()) {
-                val item = array.getJSONObject(index)
-                add(
-                    SkillDefinition(
-                        name = item.optString("name"),
-                        defaultValue = item.optInt("defaultValue", 0)
+        cachedSkills?.let { return it }
+
+        return synchronized(this) {
+            cachedSkills?.let { return@synchronized it }
+
+            val json = readAsset(context, "skills.json")
+            val array = JSONArray(json)
+            val parsed = buildList {
+                for (index in 0 until array.length()) {
+                    val item = array.getJSONObject(index)
+                    add(
+                        SkillDefinition(
+                            name = item.optString("name"),
+                            defaultValue = item.optInt("defaultValue", 0)
+                        )
                     )
-                )
+                }
             }
+
+            cachedSkills = parsed
+            parsed
         }
     }
 
